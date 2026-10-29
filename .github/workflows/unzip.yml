@@ -1,0 +1,28 @@
+name: Unzip Archive
+on:
+  push:
+    paths:
+      - '*.zip' # Запускать, если в корень загрузили zip
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Unzip files
+        run: |
+          # Ищем все zip файлы и распаковываем их в текущую папку
+          for f in *.zip; do
+            unzip -o "$f" -d .
+            rm "$f" # Удалить архив после распаковки (опционально)
+          done
+          
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add .
+          git commit -m "Auto-unzipped files" || exit 0
+          git push
